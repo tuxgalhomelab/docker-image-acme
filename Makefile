@@ -68,4 +68,11 @@ lint:
 update-package-list:
 	$(call ExecWithMsg,Updating Packages to Install List,./update-packages-to-install-list.sh)
 
+github_env_vars:
+	@echo "DOCKERHUB_REPO_NAME=$(USER_NAME)/$(IMAGE_NAME)"
+
+github_dump_docker_build_args:
+	@./build-args.sh
+
 .PHONY: all clean build test lint update-package-list
+.PHONY: github_env_vars github_dump_docker_build_args
