@@ -18,8 +18,9 @@ permissions:
   contents: read
 
 env:
-  TEST_TAG: tuxdude/homelab-acme:ci-test
-  PUBLISH_TAG: tuxdude/homelab-acme:master
+  DOCKERHUB_REPO_NAME: tuxdude/homelab-acme
+  DOCKERHUB_TEST_LABEL: ci-test
+  DOCKERHUB_PUBLISH_LABEL: ${{ github.ref_name }}
 
 jobs:
   docker:
@@ -53,7 +54,7 @@ jobs:
         with:
           context: .
           load: true
-          tags: ${{ env.TEST_TAG }}
+          tags: ${{ env.DOCKERHUB_REPO_NAME }}:${{ env.DOCKERHUB_TEST_LABEL }}
           build-args: |
             BASE_IMAGE_NAME=${{ env.BASE_IMAGE_NAME }}
             BASE_IMAGE_LABEL=${{ env.BASE_IMAGE_LABEL }}
@@ -66,7 +67,7 @@ jobs:
 
       - name: Test
         run: |
-          docker run --rm ${{ env.TEST_TAG }} acme.sh --list
+          docker run --rm ${{ env.DOCKERHUB_REPO_NAME }}:${{ env.DOCKERHUB_TEST_LABEL }} acme.sh --list
 
       - name: Build and push
         uses: docker/build-push-action@v2
@@ -74,7 +75,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ env.PUBLISH_TAG }}
+          tags: ${{ env.DOCKERHUB_REPO_NAME }}:${{ env.DOCKERHUB_PUBLISH_LABEL }}
           build-args: |
             BASE_IMAGE_NAME=${{ env.BASE_IMAGE_NAME }}
             BASE_IMAGE_LABEL=${{ env.BASE_IMAGE_LABEL }}
