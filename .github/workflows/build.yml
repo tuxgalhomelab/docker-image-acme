@@ -63,7 +63,6 @@ jobs:
             GROUP_NAME=${{ env.GROUP_NAME }}
             USER_ID=${{ env.USER_ID }}
             GROUP_ID=${{ env.GROUP_ID }}
-            ACME_INSTALL_DIR=${{ env.ACME_INSTALL_DIR }}
 
       - name: Test
         run: |
@@ -85,4 +84,3 @@ jobs:
             GROUP_NAME=${{ env.GROUP_NAME }}
             USER_ID=${{ env.USER_ID }}
             GROUP_ID=${{ env.GROUP_ID }}
-            ACME_INSTALL_DIR=${{ env.ACME_INSTALL_DIR }}

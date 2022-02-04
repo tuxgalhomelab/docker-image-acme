@@ -8,37 +8,34 @@ ARG USER_NAME
 ARG GROUP_NAME
 ARG USER_ID
 ARG GROUP_ID
-ARG ACME_INSTALL_DIR
 ARG ACME_VERSION
 ARG ACME_SHA256_CHECKSUM
 ARG ACME_TAR_FILE=acme.tar.gz
+ARG PACKAGES_TO_INSTALL
 
-# hadolint ignore=DL3003,DL4006
 RUN \
     set -e -o pipefail \
+    # Install dependencies. \
+    && homelab install $PACKAGES_TO_INSTALL \
     # Create the user and the group. \
-    && groupadd --gid ${GROUP_ID:?} ${GROUP_NAME:?} \
-    && useradd \
-        --create-home \
-        --shell /bin/bash \
-        --uid ${USER_ID:?} \
-        --gid ${GROUP_ID:?} \
+    && homelab add-user \
         ${USER_NAME:?} \
-    # Prepare the install directory. \
-    && rm -rf ${ACME_INSTALL_DIR:?} \
-    && mkdir ${ACME_INSTALL_DIR:?} \
-    && cd ${ACME_INSTALL_DIR:?} \
-    # Download and unpack the release. \
-    && curl --silent --location --output ${ACME_TAR_FILE:?} \
+        ${USER_ID:?} \
+        ${GROUP_NAME:?} \
+        ${GROUP_ID:?} \
+        --create-home-dir \
+    # Download and install the release. \
+    && homelab install-tar-dist \
         https://github.com/acmesh-official/acme.sh/archive/refs/tags/${ACME_VERSION:?}.tar.gz \
-    && (echo "${ACME_SHA256_CHECKSUM:?} ${ACME_TAR_FILE:?}" | sha256sum -c) \
-    && tar xf ${ACME_TAR_FILE:?} \
-    && rm ${ACME_TAR_FILE:?} \
-    # Set up symlinks. \
-    && ln -s acme.sh-${ACME_VERSION:?} acme.sh \
-    && ln -s ${ACME_INSTALL_DIR:?}/acme.sh/acme.sh /usr/bin/acme.sh \
-    # Make the installed directory owned by the user and the group we created. \
-    && chown -R ${USER_NAME:?}:${GROUP_NAME:?} ${ACME_INSTALL_DIR:?}
+        "${ACME_SHA256_CHECKSUM:?}" \
+        acme.sh \
+        acme.sh-${ACME_VERSION:?} \
+        ${USER_NAME:?} \
+        ${GROUP_NAME:?} \
+    # Set up symlink for the binary at a location accessible through $PATH. \
+    && ln -s /opt/acme.sh/acme.sh /opt/bin/acme.sh \
+    # Clean up. \
+    && homelab cleanup
 
 USER $USER_NAME:$GROUP_NAME
 WORKDIR /home/$USER_NAME

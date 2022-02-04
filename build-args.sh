@@ -15,8 +15,16 @@ args_file_as_build_args() {
     fi
 }
 
+packages_to_install() {
+    while IFS="=" read -r key value; do
+        echo -n "$key=$value "
+    done < "packages-to-install"
+}
+
 if [[ "$1" == "docker-flags" ]]; then
     args_file_as_build_args $1
+    echo -n "--build-arg PACKAGES_TO_INSTALL=\"$(packages_to_install)\" "
 else
     args_file_as_build_args
+    echo "PACKAGES_TO_INSTALL=$(packages_to_install)"
 fi
