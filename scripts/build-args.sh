@@ -1,24 +1,30 @@
 #!/usr/bin/env bash
 set -e
 
+script_parent_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+repo_dir="$(realpath "${script_parent_dir:?}/..")"
+
+ARGS_FILE="${repo_dir:?}/config/ARGS"
+PACKAGES_INSTALL_FILE="${repo_dir:?}/config/PACKAGES_INSTALL"
+
 args_file_as_build_args() {
     local prefix=""
     if [[ "$1" == "docker-flags" ]]; then
         prefix="--build-arg "
         while IFS="=" read -r key value; do
             echo -n "${prefix}$key=\"$value\" "
-        done < "ARGS"
+        done < ${ARGS_FILE:?}
     else
         while IFS="=" read -r key value; do
             echo "$key=$value"
-        done < "ARGS"
+        done < ${ARGS_FILE:?}
     fi
 }
 
 packages_to_install() {
     while IFS="=" read -r key value; do
         echo -n "$key=$value "
-    done < "packages-to-install"
+    done < "${PACKAGES_INSTALL_FILE:?}"
 }
 
 github_env_dump() {

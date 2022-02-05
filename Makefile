@@ -38,9 +38,11 @@ IMAGE_TAG         ?= latest
 FULL_IMAGE_NAME   := $(USER_NAME)/$(IMAGE_NAME):$(IMAGE_TAG)
 
 # Commands invoked from rules.
-DOCKERBUILD        := $(DOCKER_CMD) build $(shell ./build-args.sh docker-flags)
-DOCKERTEST         := $(DOCKER_CMD) run --rm $(FULL_IMAGE_NAME) acme.sh --list
-DOCKERLINT         := $(DOCKER_CMD) run --rm -i hadolint/hadolint:v2.8.0 hadolint - <
+DUMP_BUILD_ARGS         := ./scripts/build-args.sh
+UPDATE_PACKAGES_INSTALL := ./scripts/update-packages-install.sh
+DOCKERBUILD             := $(DOCKER_CMD) build $(shell $(DUMP_BUILD_ARGS) docker-flags)
+DOCKERTEST              := $(DOCKER_CMD) run --rm $(FULL_IMAGE_NAME) acme.sh --list
+DOCKERLINT              := $(DOCKER_CMD) run --rm -i hadolint/hadolint:v2.8.0 hadolint - <
 
 # Helpful functions
 # ExecWithMsg
@@ -65,14 +67,14 @@ test:
 lint:
 	$(call ExecWithMsg,Linting,$(DOCKERLINT) Dockerfile)
 
-update-package-list:
-	$(call ExecWithMsg,Updating Packages to Install List,./update-packages-to-install-list.sh)
+update_packages:
+	$(call ExecWithMsg,Updating Packages to Install List,$(UPDATE_PACKAGES_INSTALL))
 
 github_env_vars:
 	@echo "DOCKERHUB_REPO_NAME=$(USER_NAME)/$(IMAGE_NAME)"
 
 github_dump_docker_build_args:
-	@./build-args.sh
+	@$(DUMP_BUILD_ARGS)
 
-.PHONY: all clean build test lint update-package-list
+.PHONY: all clean build test lint update_packages
 .PHONY: github_env_vars github_dump_docker_build_args

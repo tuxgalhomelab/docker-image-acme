@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 set -e
 
+script_parent_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+repo_dir="$(realpath "${script_parent_dir:?}/..")"
+
+ARGS_FILE="${repo_dir:?}/config/ARGS"
+PACKAGES_INSTALL_FILE="${repo_dir:?}/config/PACKAGES_INSTALL"
+
 get_packages() {
     while IFS="=" read -r key value; do
         echo -n "$key "
-    done < "packages-to-install"
+    done < "${PACKAGES_INSTALL_FILE:?}"
 }
 
 get_cmd() {
@@ -20,9 +26,9 @@ get_image_name() {
         elif [[ "$key" == "BASE_IMAGE_TAG" ]]; then
             image_tag="$value"
         fi
-    done < "ARGS"
+    done < ${ARGS_FILE:?}
     echo -n "${image_name:?}:${image_tag:?}"
 }
 
 updated_list=$(docker run --rm "$(get_image_name)" sh -c "$(get_cmd)" | grep -v 'Listing...')
-echo "$updated_list" > packages-to-install
+echo "$updated_list" > "${PACKAGES_INSTALL_FILE:?}"
