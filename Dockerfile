@@ -1,6 +1,6 @@
 ARG BASE_IMAGE_NAME
 ARG BASE_IMAGE_TAG
-FROM $BASE_IMAGE_NAME:$BASE_IMAGE_TAG
+FROM ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}
 
 SHELL ["/bin/bash", "-c"]
 
@@ -15,7 +15,7 @@ ARG PACKAGES_TO_INSTALL
 RUN \
     set -e -o pipefail \
     # Install dependencies. \
-    && homelab install $PACKAGES_TO_INSTALL \
+    && homelab install ${PACKAGES_TO_INSTALL:?} \
     # Create the user and the group. \
     && homelab add-user \
         ${USER_NAME:?} \
@@ -36,6 +36,6 @@ RUN \
     # Clean up. \
     && homelab cleanup
 
-USER $USER_NAME:$GROUP_NAME
-WORKDIR /home/$USER_NAME
+USER ${USER_NAME}:${GROUP_NAME}
+WORKDIR /home/${USER_NAME}
 CMD ["/bin/bash"]
