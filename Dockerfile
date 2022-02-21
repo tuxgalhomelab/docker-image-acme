@@ -38,4 +38,4 @@ RUN \
 
 USER ${USER_NAME}:${GROUP_NAME}
 WORKDIR /home/${USER_NAME}
-CMD ["/bin/bash"]
+CMD ["acme.sh"]
