@@ -32,7 +32,7 @@ RUN \
         ${USER_NAME:?} \
         ${GROUP_NAME:?} \
     # Set up symlink for the binary at a location accessible through $PATH. \
-    && ln -s /opt/acme.sh/acme.sh /opt/bin/acme.sh \
+    && ln -sf /opt/acme.sh/acme.sh /opt/bin/acme.sh \
     # Clean up. \
     && homelab cleanup
 
