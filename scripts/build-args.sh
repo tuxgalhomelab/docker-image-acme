@@ -30,7 +30,6 @@ packages_to_install() {
 github_env_dump() {
     args_file_as_build_args
     echo "PACKAGES_TO_INSTALL=$(packages_to_install)"
-    echo "PACKAGES_TO_REMOVE=$(packages_to_remove)"
 }
 
 if [[ "$1" == "docker-flags" ]]; then
