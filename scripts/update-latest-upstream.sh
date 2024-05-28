@@ -26,21 +26,27 @@ git_repo_latest_tag() {
     git_repo_get_all_tags ${git_repo:?} | grep "${highest_sem_ver_tag:?}$" | cut --delimiter='/' --fields=3
 }
 
+get_config_arg() {
+    arg="${1:?}"
+    sed -n -E "s/^${arg:?}=(.*)\$/\\1/p" ${ARGS_FILE:?}
+}
+
 set_config_arg() {
     arg="${1:?}"
     val="${2:?}"
     sed -i -E "s/^${arg:?}=(.*)\$/${arg:?}=${val:?}/" ${ARGS_FILE:?}
 }
 
-update_latest_upstream_version() {
-    git_repo="${1:?}"
-    upstream_config_key="${2:?}"
-    ver=$(git_repo_latest_tag ${git_repo:?})
-    echo "Updating ${upstream_config_key:?} -> ${ver:?}"
-    set_config_arg "${upstream_config_key:?}" "${ver:?}"
-}
-
+pkg="acme.sh"
 repo_url="https://github.com/acmesh-official/acme.sh.git"
 config_key="ACME_VERSION"
 
-update_latest_upstream_version "${repo_url:?}" "${config_key:?}"
+existing_upstream_ver=$(get_config_arg ${config_key:?})
+latest_upstream_ver=$(git_repo_latest_tag ${repo_url:?})
+
+if [[ "${existing_upstream_ver:?}" == "${latest_upstream_ver:?}" ]]; then
+    echo "Existing config is already up to date and pointing to the latest upstream ${pkg:?} version '${latest_upstream_ver:?}'"
+else
+    echo "Updating ${pkg:?} ${config_key:?} '${existing_upstream_ver:?}' -> '${latest_upstream_ver:?}'"
+    set_config_arg "${config_key:?}" "${latest_upstream_ver:?}"
+fi
