@@ -23,7 +23,7 @@ git_repo_latest_tag() {
     # Strip out any strings that begin with 'v' before identifying the highest semantic version.
     highest_sem_ver_tag=$(git_repo_get_all_tags ${git_repo:?} | sed -E s'#^v(.*)$#\1#g' | sed '/-/!{s/$/_/}' | sort --version-sort | sed 's/_$//'| tail -1)
     # Identify the correct tag for the semantic version of interest.
-    git_repo_get_all_tags ${git_repo:?} | grep "${highest_sem_ver_tag:?}$" | cut --delimiter='/' --fields=3
+    git_repo_get_all_tags ${git_repo:?} | grep -E "${highest_sem_ver_tag//./\\.}$" | cut --delimiter='/' --fields=3
 }
 
 get_config_arg() {
@@ -39,14 +39,20 @@ set_config_arg() {
 
 pkg="acme.sh"
 repo_url="https://github.com/acmesh-official/acme.sh.git"
-config_key="ACME_VERSION"
+tags_url_prefix="https://github.com/acmesh-official/acme.sh/archive/refs/tags"
+config_ver_key="ACME_VERSION"
+config_checksum_key="ACME_SHA256_CHECKSUM"
 
-existing_upstream_ver=$(get_config_arg ${config_key:?})
+existing_upstream_ver=$(get_config_arg ${config_ver_key:?})
 latest_upstream_ver=$(git_repo_latest_tag ${repo_url:?})
 
 if [[ "${existing_upstream_ver:?}" == "${latest_upstream_ver:?}" ]]; then
     echo "Existing config is already up to date and pointing to the latest upstream ${pkg:?} version '${latest_upstream_ver:?}'"
 else
-    echo "Updating ${pkg:?} ${config_key:?} '${existing_upstream_ver:?}' -> '${latest_upstream_ver:?}'"
-    set_config_arg "${config_key:?}" "${latest_upstream_ver:?}"
+    sha256_checksum="$(curl --silent --location ${tags_url_prefix:?}/${latest_upstream_ver:?}.tar.gz | sha256sum | cut --delimiter=' ' --fields=1)"
+    echo "Updating ${pkg:?} ${config_ver_key:?} '${existing_upstream_ver:?}' -> '${latest_upstream_ver:?}'"
+    set_config_arg "${config_ver_key:?}" "${latest_upstream_ver:?}"
+    set_config_arg "${config_checksum_key:?}" "${sha256_checksum:?}"
+    git add ${ARGS_FILE:?}
+    git commit -m "feat: Bump upstream ${pkg:?} version to ${latest_upstream_ver:?}."
 fi
