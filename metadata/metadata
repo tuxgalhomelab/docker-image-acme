@@ -6,7 +6,7 @@ set -e -o pipefail
 PACKAGE_NAME="acme.sh"
 RELEASE_PACKAGE_NAME="acme.sh"
 RELEASE_TAG_PACKAGE_NAME="acme.sh"
-UPSTREAM_IMAGE_CONFIG_KEY_PREFIX="BASE_IMAGE"
+BASE_IMAGE_CONFIG_KEY_PREFIX="BASE_IMAGE"
 UPSTREAM_VERSION_CONFIG_KEY="ACME_VERSION"
 UPSTREAM_CHECKSUM_CONFIG_KEY="ACME_SHA256_CHECKSUM"
 UPSTREAM_GIT_REPO="https://github.com/acmesh-official/acme.sh"
@@ -18,13 +18,13 @@ current_upstream_version() {
 }
 
 latest_upstream_version() {
-    git_repo_latest_tag "${UPSTREAM_GIT_REPO:?}.git"
+    git_remote_repo_latest_tag "${UPSTREAM_GIT_REPO:?}.git"
 }
 
 update_latest_upstream_version() {
     local cur_ver="${1:?}"
     local latest_ver="${2:?}"
-    local sha256_checksum="$(upstream_git_repo_archive_sha256_checksum ${latest_ver:?})"
+    local sha256_checksum="$(upstream_github_repo_archive_sha256_checksum ${latest_ver:?})"
     echo "Updating ${PACKAGE_NAME:?} ${UPSTREAM_VERSION_CONFIG_KEY:?} '${cur_ver:?}' -> '${latest_ver:?}'"
     set_config_arg "${UPSTREAM_VERSION_CONFIG_KEY:?}" "${latest_ver:?}"
     set_config_arg "${UPSTREAM_CHECKSUM_CONFIG_KEY:?}" "${sha256_checksum:?}"
