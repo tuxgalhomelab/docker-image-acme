@@ -13,7 +13,7 @@ ARG ACME_SHA256_CHECKSUM
 ARG PACKAGES_TO_INSTALL
 
 RUN \
-    set -e -o pipefail \
+    set -E -e -o pipefail \
     # Install dependencies. \
     && homelab install ${PACKAGES_TO_INSTALL:?} \
     # Create the user and the group. \
