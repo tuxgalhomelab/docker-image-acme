@@ -36,6 +36,9 @@ RUN \
     # Clean up. \
     && homelab cleanup
 
+ENV USER=${USER_NAME}
 USER ${USER_NAME}:${GROUP_NAME}
 WORKDIR /home/${USER_NAME}
+
 CMD ["acme.sh"]
+STOPSIGNAL SIGTERM
