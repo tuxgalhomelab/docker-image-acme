@@ -16,6 +16,7 @@ ARG PACKAGES_TO_INSTALL
 
 RUN \
     set -E -e -o pipefail \
+    && export HOMELAB_VERBOSE=y \
     # Install dependencies. \
     && homelab install ${PACKAGES_TO_INSTALL:?} \
     # Create the user and the group. \
