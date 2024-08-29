@@ -12,6 +12,7 @@ ARG ACME_VERSION
 ARG ACME_SHA256_CHECKSUM
 ARG PACKAGES_TO_INSTALL
 
+# hadolint ignore=SC3040
 RUN \
     set -E -e -o pipefail \
     && export HOMELAB_VERBOSE=y \
